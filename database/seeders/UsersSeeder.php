@@ -12,9 +12,35 @@ class UsersSeeder extends Seeder
      */
     public function run(): void
     {
+        // Создаем супер-админа
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test_user@example.com',
+            'name' => 'Супер Админ',
+            'login' => 'superadmin',
+            'role' => 'супер-админ',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+        ]);
+
+        // Создаем админа
+        User::factory()->create([
+            'name' => 'Админ',
+            'login' => 'admin',
+            'role' => 'админ',
+            'password' => \Illuminate\Support\Facades\Hash::make('password'),
+        ]);
+
+        // Создаем несколько продавцов
+        User::factory()->count(3)->create([
+            'role' => 'продавец',
+        ]);
+
+        // Создаем еще несколько админов
+        User::factory()->count(2)->create([
+            'role' => 'админ',
+        ]);
+
+        // Создаем остальных пользователей (продавцы)
+        User::factory()->count(13)->create([
+            'role' => 'продавец',
         ]);
     }
 }

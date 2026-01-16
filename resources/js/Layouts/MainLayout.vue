@@ -1,18 +1,26 @@
 <script setup>
-import {Link, router} from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import Dropdown from "@/Components/Dropdown.vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
-import {ref} from "vue";
+import ToastContainer from "@/Components/ToastContainer.vue";
+import { ref } from "vue";
+import UsersIcon from "@/Components/Icons/UsersIcon.vue";
+import CounterpartiesIcon from "@/Components/Icons/CounterpartiesIcon.vue";
+import StatisticsIcon from "@/Components/Icons/StatisticsIcon.vue";
+import BranchesIcon from "@/Components/Icons/BranchesIcon.vue";
+import SalesIcon from "@/Components/Icons/SalesIcon.vue";
+import ProductReceiptsIcon from "@/Components/Icons/ProductReceiptsIcon.vue";
+import ProductsIcon from "@/Components/Icons/ProductsIcon.vue";
 
 const currentUrl = ref(router.page.url);
 </script>
 
 <template>
     <div class="flex">
-        <div class="flex flex-col h-screen p-3 bg-white shadow w-60">
+        <div class="flex flex-col p-3 bg-white border shadow w-60 h-screen sticky top-0">
             <div class="space-y-3">
                 <div class="flex items-center">
-                    <img src="../../../public/assets/logo.png" alt="Daily Grow"/>
+                    <img src="../../../public/assets/logo-tech.png" alt="Daily Grow"/>
                 </div>
 
                 <div class="flex-1">
@@ -23,64 +31,69 @@ const currentUrl = ref(router.page.url);
                                 class="flex items-center p-2 space-x-3 rounded-md"
                                 :class="{ 'active': currentUrl === '/dashboard' }"
                             >
-                                <img src="../../../public/assets/icon-dashboard.png" alt="dashboard"/>
-                                <span>Dashboard</span>
+                                <StatisticsIcon />
+                                <span>Статистика</span>
+                            </Link>
+                        </li>
+                        <li class="rounded-sm" v-if="$page.props.auth.user?.canManageUsers">
+                            <Link
+                                :href="route('users.index')"
+                                class="flex items-center p-2 space-x-3 rounded-md"
+                                :class="{ 'active': currentUrl.startsWith('/users') }"
+                            >
+                                <UsersIcon/>
+                                <span>Пользователи</span>
                             </Link>
                         </li>
                         <li class="rounded-sm">
                             <Link
-                                :href="route('clients.index')"
+                                :href="route('branches.index')"
                                 class="flex items-center p-2 space-x-3 rounded-md"
-                                :class="{ 'active': currentUrl === '/clients' }"
+                                :class="{ 'active': currentUrl.startsWith('/branches') }"
                             >
-                                <img src="../../../public/assets/research.png" alt="clients"/>
-                                <span>Клиенты</span>
+                                <BranchesIcon />
+                                <span>Филиалы</span>
                             </Link>
                         </li>
                         <li class="rounded-sm">
                             <Link
-                                :href="route('mailings.index')"
+                                :href="route('counterparties.index')"
                                 class="flex items-center p-2 space-x-3 rounded-md"
-                                :class="{ 'active': currentUrl === '/mailings' }"
+                                :class="{ 'active': currentUrl.startsWith('/counterparties') }"
                             >
-                                <img src="../../../public/assets/chat.png" alt="mailings"/>
-
-                                <span>Рассылки</span>
+                                <CounterpartiesIcon/>
+                                <span>Контрагенты</span>
                             </Link>
                         </li>
                         <li class="rounded-sm">
                             <Link
-                                :href="route('mailings.analytics')"
+                                :href="route('products.index')"
                                 class="flex items-center p-2 space-x-3 rounded-md"
-                                :class="{ 'active': currentUrl === '/analytics' }"
+                                :class="{ 'active': currentUrl.startsWith('/products') }"
                             >
-                                <img src="../../../public/assets/analytics.png" alt="analytics"/>
-
-                                <span>Аналитика</span>
+                                <ProductsIcon />
+                                <span>Товары</span>
                             </Link>
                         </li>
                         <li class="rounded-sm">
-                            <a
-                                href="#"
+                            <Link
+                                :href="route('product-receipts.index')"
                                 class="flex items-center p-2 space-x-3 rounded-md"
+                                :class="{ 'active': currentUrl.startsWith('/product-receipts') }"
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="#C7C7C7"
-                                    class="w-6 h-6"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
-                                    />
-                                </svg>
-
-                                <span>Выйти</span>
-                            </a>
+                                <ProductReceiptsIcon />
+                                <span>Приход товара</span>
+                            </Link>
+                        </li>
+                        <li class="rounded-sm">
+                            <Link
+                                :href="route('sales.index')"
+                                class="flex items-center p-2 space-x-3 rounded-md"
+                                :class="{ 'active': currentUrl.startsWith('/sales') }"
+                            >
+                                <SalesIcon />
+                                <span>Продажи</span>
+                            </Link>
                         </li>
                     </ul>
                 </div>
@@ -93,7 +106,7 @@ const currentUrl = ref(router.page.url);
                     <span class="inline-flex rounded-md">
                         <button
                             type="button"
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-xl leading-4 font-medium rounded-md text-orange-500 bg-white hover:text-orange-700 focus:outline-none transition ease-in-out duration-150"
                         >
                             {{ $page.props.auth.user.name }}
 
@@ -115,23 +128,40 @@ const currentUrl = ref(router.page.url);
 
                 <template #content>
                     <DropdownLink :href="route('logout')" method="post" as="button">
-                        Log Out
+                        <div class="flex items-center gap-2">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                                class="w-6 h-6"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"
+                                />
+                            </svg>
+                            Выйти
+                        </div>
                     </DropdownLink>
                 </template>
             </Dropdown>
 
-            <div class="container mt-4 mx-6 block">
+            <div class="container mt-4 mx-6">
                 <slot/>
             </div>
         </div>
     </div>
+    <ToastContainer />
 </template>
 
 <style scoped>
 .active {
     background: whitesmoke;
     box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
-    color: #1e53c7;
+    color: rgb(249, 115, 22);
     font-weight: 600;
 }
 </style>

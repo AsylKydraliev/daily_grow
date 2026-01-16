@@ -4,7 +4,6 @@ import GuestLayout from '@/Layouts/GuestLayout.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps({
@@ -17,7 +16,7 @@ defineProps({
 });
 
 const form = useForm({
-    email: '',
+    login: '',
     password: '',
 });
 
@@ -38,31 +37,29 @@ const submit = () => {
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="login" value="Логин" />
 
-                <TextInput
-                    id="email"
-                    type="email"
-                    class="mt-1 block w-full"
-                    v-model="form.email"
+                <input
+                    id="login"
+                    type="text"
+                    class="mt-1 block w-full bg-white border-orange-300 focus:border-orange-500 focus:ring-orange-500 rounded-md shadow-sm"
+                    v-model="form.login"
                     required
                     autofocus
-                    autocomplete="username"
                 />
 
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="mt-2" :message="form.errors.login" />
             </div>
 
             <div class="mt-4">
                 <InputLabel for="password" value="Пароль" />
 
-                <TextInput
+                <input
                     id="password"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="mt-1 block w-full bg-white border-orange-300 focus:border-orange-500 focus:ring-orange-500 rounded-md shadow-sm"
                     v-model="form.password"
                     required
-                    autocomplete="current-password"
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />

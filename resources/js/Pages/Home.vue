@@ -1,11 +1,5 @@
 <script setup>
 import MainLayout from "@/Layouts/MainLayout.vue";
-
-defineProps({
-    clientsCount: Number,
-    mailingsSentCount: Number,
-    mailingsDeliveredCount: Number,
-});
 </script>
 
 <template>
@@ -14,26 +8,26 @@ defineProps({
         <div class="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-3">
             <div class="w-full p-10 bg-white rounded-lg shadow">
                 <div class="text-xl font-medium text-gray-500 truncate">
-                    Количество клиентов
+                    Количество контрагентов
                 </div>
                 <div class="mt-1 text-3xl font-semibold text-gray-900">
-                    {{ clientsCount }}
+                    50
                 </div>
             </div>
             <div class="w-full p-10 bg-white rounded-lg shadow">
                 <div class="text-xl font-medium text-gray-500 truncate">
-                    Отправленных рассылок
+                    Количество заказов
                 </div>
                 <div class="mt-1 text-3xl font-semibold text-gray-900">
-                    {{ mailingsSentCount }}
+                    583
                 </div>
             </div>
             <div class="w-full p-10 bg-white rounded-lg shadow">
                 <div class="text-xl font-medium text-gray-500 truncate">
-                    Доставленных рассылок
+                    Доставленных товаров
                 </div>
                 <div class="mt-1 text-3xl font-semibold text-gray-900">
-                    {{ mailingsDeliveredCount }}
+                    650
                 </div>
             </div>
         </div>

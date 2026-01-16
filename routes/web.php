@@ -1,9 +1,12 @@
 <?php
 
-use App\Http\Controllers\ClientController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\CounterpartyController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MailingAnalyticsController;
-use App\Http\Controllers\MailingController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProductReceiptController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,13 +23,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/analytics', [MailingAnalyticsController::class, 'index'])->name('mailings.analytics');
-
-    Route::post('/clients/importExcel', [ClientController::class, 'importExcel'])->name('clients.importExcel');
-    Route::post('/mailings/setActive/{mailing}', [MailingController::class, 'setActive'])->name('mailings.setActive');
-
-    Route::resource('/clients', ClientController::class)->only(['index', 'create', 'store']);
-    Route::resource('/mailings', MailingController::class)->only(['index', 'create', 'store']);
+    Route::resource('/users', UserController::class);
+    Route::resource('/branches', BranchController::class);
+    Route::resource('/counterparties', CounterpartyController::class);
+    Route::resource('/products', ProductController::class);
+    Route::resource('/product-receipts', ProductReceiptController::class);
+    Route::resource('/sales', SaleController::class);
 });
 
 require __DIR__.'/auth.php';

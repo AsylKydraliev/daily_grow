@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Models;
+
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $address
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ *
+ * @mixin Builder
+ */
+class Branch extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'address',
+    ];
+
+    /**
+     * Получить приходы товаров для филиала
+     */
+    public function productReceipts(): HasMany
+    {
+        return $this->hasMany(ProductReceipt::class);
+    }
+
+    /**
+     * Получить продажи для филиала
+     */
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
+    }
+
+    /**
+     * Фильтрация записей
+     */
+    public function scopeFilter(Builder $query, array $data = []): void
+    {
+        if (isset($data['search'])) {
+            $search = trim($data['search']);
+            if (empty($search)) {
+                return;
+            }
+
+            // Разбиваем поисковый запрос на слова
+            $words = preg_split('/\s+/', $search, -1, PREG_SPLIT_NO_EMPTY);
+            
+            $dbConnection = env('DB_CONNECTION', 'mysql');
+            
+            // Для каждого слова добавляем условие поиска
+            $query->where(function ($q) use ($words, $dbConnection) {
+                foreach ($words as $word) {
+                    // Экранируем специальные символы LIKE
+                    $wordEscaped = str_replace(['%', '_'], ['\%', '\_'], $word);
+                    
+                    if ($dbConnection === 'pgsql') {
+                        // PostgreSQL поддерживает ilike для case-insensitive поиска
+                        $q->where('name', 'ilike', '%' . $wordEscaped . '%');
+                    } elseif ($dbConnection === 'sqlite') {
+                        // SQLite: LOWER() и COLLATE NOCASE не работают с кириллицей
+                        // Генерируем все возможные варианты регистра для поиска
+                        $variants = $this->generateCaseVariants($wordEscaped);
+                        $q->where(function ($subQ) use ($variants) {
+                            foreach ($variants as $variant) {
+                                $subQ->orWhere('name', 'like', '%' . $variant . '%');
+                            }
+                        });
+                    } else {
+                        // MySQL и другие: используем like с collation utf8mb4_unicode_ci (case-insensitive)
+                        $q->where('name', 'like', '%' . $wordEscaped . '%');
+                    }
+                }
+            });
+        }
+    }
+
+    /**
+     * Генерирует варианты регистра для поиска в SQLite
+     */
+    private function generateCaseVariants(string $word): array
+    {
+        $variants = [];
+        $wordLower = mb_strtolower($word, 'UTF-8');
+        $wordUpper = mb_strtoupper($word, 'UTF-8');
+        $wordTitle = mb_convert_case($word, MB_CASE_TITLE, 'UTF-8');
+        
+        // Базовые варианты
+        $variants[] = $word;
+        $variants[] = $wordLower;
+        $variants[] = $wordUpper;
+        $variants[] = $wordTitle;
+        
+        $wordLength = mb_strlen($word, 'UTF-8');
+        
+        // Для коротких слов (до 5 символов) генерируем дополнительные варианты
+        if ($wordLength <= 5 && $wordLength > 1) {
+            // Вариант с первой заглавной и остальными маленькими
+            $firstUpper = mb_strtoupper(mb_substr($word, 0, 1, 'UTF-8'), 'UTF-8') . 
+                          mb_strtolower(mb_substr($word, 1, null, 'UTF-8'), 'UTF-8');
+            $variants[] = $firstUpper;
+            
+            // Вариант с первой маленькой и остальными заглавными
+            $firstLower = mb_strtolower(mb_substr($word, 0, 1, 'UTF-8'), 'UTF-8') . 
+                          mb_strtoupper(mb_substr($word, 1, null, 'UTF-8'), 'UTF-8');
+            $variants[] = $firstLower;
+            
+            // Для очень коротких слов (до 4 символов) добавляем варианты с последней заглавной
+            if ($wordLength <= 4) {
+                // Первая заглавная, последняя заглавная, остальные маленькие
+                $firstLastUpper = mb_strtoupper(mb_substr($word, 0, 1, 'UTF-8'), 'UTF-8') . 
+                                  mb_strtolower(mb_substr($word, 1, $wordLength - 2, 'UTF-8'), 'UTF-8') . 
+                                  mb_strtoupper(mb_substr($word, -1, 1, 'UTF-8'), 'UTF-8');
+                $variants[] = $firstLastUpper;
+            }
+        }
+        
+        return array_unique($variants);
+    }
+}

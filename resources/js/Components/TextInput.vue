@@ -19,8 +19,17 @@ defineExpose({ focus: () => input.value.focus() });
 
 <template>
     <input
-        class="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
+        class="border-orange-300 focus:border-orange-500 focus:ring-orange-500 rounded-md shadow-sm"
         v-model="model"
         ref="input"
     />
 </template>
+
+<style scoped>
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"] {
+    background-color: white !important;
+}
+</style>

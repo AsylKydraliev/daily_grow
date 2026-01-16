@@ -26,7 +26,7 @@ const setActiveTab = (index) => {
 
 <template>
     <div>
-        <div class="mb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="mb-4 border-b border-gray-200">
             <button
                 v-for="(tab, index) in tabs"
                 :key="index"
