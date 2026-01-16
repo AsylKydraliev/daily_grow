@@ -19,6 +19,8 @@ const form = useForm({
 const handleSubmit = async () => {
     form.post('/products');
 };
+
+/** @todo Убрать дату закупки */
 </script>
 
 <template>

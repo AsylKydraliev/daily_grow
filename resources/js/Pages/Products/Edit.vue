@@ -20,6 +20,8 @@ const form = useForm({
 const handleSubmit = async () => {
     form.put(`/products/${props.product.id}`);
 };
+/** @todo Убрать дату закупки
+ * Создание приход товара - вывести список всех товаров после выбора филиала и возле каждого товара поле с количеством  */
 </script>
 
 <template>
