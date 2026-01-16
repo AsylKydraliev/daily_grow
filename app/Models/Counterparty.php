@@ -6,11 +6,14 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property int $id
  * @property string $name
+ * @property string $address
+ * @property int|null $branch_id
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
@@ -22,6 +25,8 @@ class Counterparty extends Model
 
     protected $fillable = [
         'name',
+        'address',
+        'branch_id',
     ];
 
     /**
@@ -30,6 +35,14 @@ class Counterparty extends Model
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);
+    }
+
+    /**
+     * Получить филиал контрагента
+     */
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 
     /**
@@ -56,19 +69,26 @@ class Counterparty extends Model
                     
                     if ($dbConnection === 'pgsql') {
                         // PostgreSQL поддерживает ilike для case-insensitive поиска
-                        $q->where('name', 'ilike', '%' . $wordEscaped . '%');
+                        $q->where(function ($subQ) use ($wordEscaped) {
+                            $subQ->where('name', 'ilike', '%' . $wordEscaped . '%')
+                                 ->orWhere('address', 'ilike', '%' . $wordEscaped . '%');
+                        });
                     } elseif ($dbConnection === 'sqlite') {
                         // SQLite: LOWER() и COLLATE NOCASE не работают с кириллицей
                         // Генерируем все возможные варианты регистра для поиска
                         $variants = $this->generateCaseVariants($wordEscaped);
                         $q->where(function ($subQ) use ($variants) {
                             foreach ($variants as $variant) {
-                                $subQ->orWhere('name', 'like', '%' . $variant . '%');
+                                $subQ->orWhere('name', 'like', '%' . $variant . '%')
+                                     ->orWhere('address', 'like', '%' . $variant . '%');
                             }
                         });
                     } else {
                         // MySQL и другие: используем like с collation utf8mb4_unicode_ci (case-insensitive)
-                        $q->where('name', 'like', '%' . $wordEscaped . '%');
+                        $q->where(function ($subQ) use ($wordEscaped) {
+                            $subQ->where('name', 'like', '%' . $wordEscaped . '%')
+                                 ->orWhere('address', 'like', '%' . $wordEscaped . '%');
+                        });
                     }
                 }
             });

@@ -23,6 +23,8 @@ class UpdateCounterpartyRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'branch_id' => 'nullable|exists:branches,id',
         ];
     }
 }

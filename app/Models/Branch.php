@@ -43,6 +43,14 @@ class Branch extends Model
     }
 
     /**
+     * Получить контрагентов филиала
+     */
+    public function counterparties(): HasMany
+    {
+        return $this->hasMany(Counterparty::class);
+    }
+
+    /**
      * Фильтрация записей
      */
     public function scopeFilter(Builder $query, array $data = []): void

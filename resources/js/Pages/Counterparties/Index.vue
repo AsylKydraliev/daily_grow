@@ -21,7 +21,7 @@ const deleteCounterparty = (id) => {
     <MainLayout>
         <SearchInput 
             route-name="counterparties.index" 
-            placeholder="Поиск по названию"
+            placeholder="Поиск по названию или адресу"
         />
 
         <div class="flex justify-between items-center mb-2">
@@ -46,6 +46,12 @@ const deleteCounterparty = (id) => {
                         Название
                     </th>
                     <th scope="col" class="px-6 py-3">
+                        Адрес
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Филиал
+                    </th>
+                    <th scope="col" class="px-6 py-3">
                         Дата создания
                     </th>
                     <th scope="col" class="px-6 py-3">
@@ -55,7 +61,7 @@ const deleteCounterparty = (id) => {
                 </thead>
                 <tbody>
                 <tr v-if="counterparties.data.length === 0" class="border-b">
-                    <td :colspan="3" class="px-6 py-8 text-center text-gray-500">
+                    <td :colspan="5" class="px-6 py-8 text-center text-gray-500">
                         <div class="flex flex-col items-center justify-center">
                             <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -70,6 +76,12 @@ const deleteCounterparty = (id) => {
                         class="px-6 py-4 font-medium whitespace-nowrap">
                         {{ counterparty.name }}
                     </th>
+                    <td class="px-6 py-4">
+                        {{ counterparty.address }}
+                    </td>
+                    <td class="px-6 py-4">
+                        {{ counterparty.branch ? counterparty.branch.name : 'Не указан' }}
+                    </td>
                     <td class="px-6 py-4">
                         {{ new Date(counterparty.created_at).toLocaleDateString('ru-RU') }}
                     </td>

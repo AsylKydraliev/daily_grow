@@ -6,11 +6,14 @@ import CheckIcon from "@/Components/Icons/CheckIcon.vue";
 import XMarkIcon from "@/Components/Icons/XMarkIcon.vue";
 
 const props = defineProps({
-    counterparty: Object
+    counterparty: Object,
+    branches: Array
 });
 
 const form = useForm({
     name: props.counterparty.name,
+    address: props.counterparty.address,
+    branch_id: props.counterparty.branch_id,
 })
 
 const handleSubmit = async () => {
@@ -31,8 +34,39 @@ const handleSubmit = async () => {
                     :class="{ 'border-red-500': form.errors.name }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                     placeholder="Введите название контрагента"
+                    required
                 />
                 <small v-if="form.errors.name" class="text-red-600">{{ form.errors.name }}</small>
+            </div>
+
+            <div class="mb-5">
+                <label for="address" class="block mb-2 text-sm font-medium text-gray-900">Адрес</label>
+                <input
+                    type="text"
+                    id="address"
+                    v-model="form.address"
+                    :class="{ 'border-red-500': form.errors.address }"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                    placeholder="Введите адрес контрагента"
+                    required
+                />
+                <small v-if="form.errors.address" class="text-red-600">{{ form.errors.address }}</small>
+            </div>
+
+            <div class="mb-5">
+                <label for="branch_id" class="block mb-2 text-sm font-medium text-gray-900">Филиал</label>
+                <select
+                    id="branch_id"
+                    v-model="form.branch_id"
+                    :class="{ 'border-red-500': form.errors.branch_id }"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                >
+                    <option :value="null">Не выбран</option>
+                    <option v-for="branch in branches" :key="branch.id" :value="branch.id">
+                        {{ branch.name }}
+                    </option>
+                </select>
+                <small v-if="form.errors.branch_id" class="text-red-600">{{ form.errors.branch_id }}</small>
             </div>
 
             <div class="flex gap-2">

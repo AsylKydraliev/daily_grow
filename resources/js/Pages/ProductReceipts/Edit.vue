@@ -30,22 +30,6 @@ const handleSubmit = async () => {
         <h3 class="text-xl font-bold mb-5">Редактировать приход товара</h3>
         <form class="sm:max-w-lg" @submit.prevent="handleSubmit">
             <div class="mb-5">
-                <label for="product_id" class="block mb-2 text-sm font-medium text-gray-900">Товар</label>
-                <select
-                    id="product_id"
-                    v-model="form.product_id"
-                    :class="{ 'border-red-500': form.errors.product_id }"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                >
-                    <option value="">Выберите товар</option>
-                    <option v-for="product in products" :key="product.id" :value="product.id">
-                        {{ product.name }}
-                    </option>
-                </select>
-                <small v-if="form.errors.product_id" class="text-red-600">{{ form.errors.product_id }}</small>
-            </div>
-
-            <div class="mb-5">
                 <label for="branch_id" class="block mb-2 text-sm font-medium text-gray-900">Филиал</label>
                 <select
                     id="branch_id"
@@ -62,19 +46,19 @@ const handleSubmit = async () => {
             </div>
 
             <div class="mb-5">
-                <label for="user_id" class="block mb-2 text-sm font-medium text-gray-900">Пользователь</label>
+                <label for="product_id" class="block mb-2 text-sm font-medium text-gray-900">Товар</label>
                 <select
-                    id="user_id"
-                    v-model="form.user_id"
-                    :class="{ 'border-red-500': form.errors.user_id }"
+                    id="product_id"
+                    v-model="form.product_id"
+                    :class="{ 'border-red-500': form.errors.product_id }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 >
-                    <option value="">Выберите пользователя (необязательно)</option>
-                    <option v-for="user in users" :key="user.id" :value="user.id">
-                        {{ user.name }}
+                    <option value="">Выберите товар</option>
+                    <option v-for="product in products" :key="product.id" :value="product.id">
+                        {{ product.name }}
                     </option>
                 </select>
-                <small v-if="form.errors.user_id" class="text-red-600">{{ form.errors.user_id }}</small>
+                <small v-if="form.errors.product_id" class="text-red-600">{{ form.errors.product_id }}</small>
             </div>
 
             <div class="mb-5">

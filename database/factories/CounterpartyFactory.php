@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Branch;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,14 @@ class CounterpartyFactory extends Factory
      */
     public function definition(): array
     {
+        $branches = Branch::all();
+        
         return [
             'name' => fake()->company(),
+            'address' => fake()->address(),
+            'branch_id' => (fake()->boolean(70) && $branches->isNotEmpty()) 
+                ? $branches->random()->id 
+                : null, // 70% вероятность наличия филиала
         ];
     }
 }

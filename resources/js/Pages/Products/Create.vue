@@ -33,7 +33,7 @@ const handleSubmit = async () => {
                     :class="{ 'border-red-500': form.errors.branch_id }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 >
-                    <option value="">Выберите филиал</option>
+                    <option value="null">Выберите филиал</option>
                     <option v-for="branch in branches" :key="branch.id" :value="branch.id">
                         {{ branch.name }}
                     </option>

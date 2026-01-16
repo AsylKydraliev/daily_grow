@@ -49,9 +49,6 @@ const deleteProductReceipt = (id) => {
                         Дата прихода
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Пользователь
-                    </th>
-                    <th scope="col" class="px-6 py-3">
                         Действия
                     </th>
                 </tr>
@@ -70,9 +67,6 @@ const deleteProductReceipt = (id) => {
                     </td>
                     <td class="px-6 py-4">
                         {{ new Date(receipt.receipt_date).toLocaleDateString('ru-RU') }}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ receipt.user?.name || 'N/A' }}
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">

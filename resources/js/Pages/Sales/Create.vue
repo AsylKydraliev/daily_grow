@@ -39,7 +39,7 @@ const handleSubmit = async () => {
                     :class="{ 'border-red-500': form.errors.product_id }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 >
-                    <option value="">Выберите товар</option>
+                    <option :value="null">Выберите товар</option>
                     <option v-for="product in products" :key="product.id" :value="product.id">
                         {{ product.name }}
                     </option>
@@ -55,7 +55,7 @@ const handleSubmit = async () => {
                     :class="{ 'border-red-500': form.errors.counterparty_id }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 >
-                    <option value="">Выберите контрагента</option>
+                    <option :value="null">Выберите контрагента</option>
                     <option v-for="counterparty in counterparties" :key="counterparty.id" :value="counterparty.id">
                         {{ counterparty.name }}
                     </option>
@@ -71,28 +71,12 @@ const handleSubmit = async () => {
                     :class="{ 'border-red-500': form.errors.branch_id }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                 >
-                    <option value="">Выберите филиал</option>
+                    <option :value="null">Выберите филиал</option>
                     <option v-for="branch in branches" :key="branch.id" :value="branch.id">
                         {{ branch.name }}
                     </option>
                 </select>
                 <small v-if="form.errors.branch_id" class="text-red-600">{{ form.errors.branch_id }}</small>
-            </div>
-
-            <div class="mb-5">
-                <label for="user_id" class="block mb-2 text-sm font-medium text-gray-900">Пользователь</label>
-                <select
-                    id="user_id"
-                    v-model="form.user_id"
-                    :class="{ 'border-red-500': form.errors.user_id }"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                >
-                    <option value="">Выберите пользователя (необязательно)</option>
-                    <option v-for="user in users" :key="user.id" :value="user.id">
-                        {{ user.name }}
-                    </option>
-                </select>
-                <small v-if="form.errors.user_id" class="text-red-600">{{ form.errors.user_id }}</small>
             </div>
 
             <div class="mb-5">

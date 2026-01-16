@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCounterpartyRequest;
 use App\Http\Requests\UpdateCounterpartyRequest;
+use App\Models\Branch;
 use App\Models\Counterparty;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class CounterpartyController extends Controller
     public function index(Request $request): Response
     {
         $counterparties = Counterparty::query()
+            ->with('branch')
             ->filter($request->all())
             ->orderByDesc('created_at')
             ->paginate(10)
@@ -37,7 +39,9 @@ class CounterpartyController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Counterparties/Create');
+        return Inertia::render('Counterparties/Create', [
+            'branches' => Branch::all(),
+        ]);
     }
 
     /**
@@ -58,6 +62,8 @@ class CounterpartyController extends Controller
      */
     public function show(Counterparty $counterparty): Response
     {
+        $counterparty->load('branch');
+
         return Inertia::render('Counterparties/Show', [
             'counterparty' => $counterparty,
         ]);
@@ -71,6 +77,7 @@ class CounterpartyController extends Controller
     {
         return Inertia::render('Counterparties/Edit', [
             'counterparty' => $counterparty,
+            'branches' => Branch::all(),
         ]);
     }
 

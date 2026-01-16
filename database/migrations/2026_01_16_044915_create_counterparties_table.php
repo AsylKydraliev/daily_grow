@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('counterparties', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('address');
+            $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
             $table->timestamps();
         });
     }
