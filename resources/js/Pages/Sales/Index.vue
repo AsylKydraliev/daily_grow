@@ -3,15 +3,53 @@ import MainLayout from "@/Layouts/MainLayout.vue";
 import {Link, router} from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import PlusIcon from "@/Components/Icons/PlusIcon.vue";
+import EmptyState from "@/Components/EmptyState.vue";
+import SaleFilters from "@/Components/SaleFilters.vue";
+import { ref, watch } from 'vue';
 
 const props = defineProps({
     sales: Object,
-    salesCount: Number
+    salesCount: Number,
+    branches: Array,
+    filters: Object,
 });
+
+const currentFilters = ref({
+    branch_id: props.filters?.branch_id || '',
+    date_from: props.filters?.date_from || '',
+    date_to: props.filters?.date_to || '',
+});
+
+// Синхронизируем фильтры при изменении props
+watch(() => props.filters, (newFilters) => {
+    currentFilters.value = {
+        branch_id: newFilters?.branch_id || '',
+        date_from: newFilters?.date_from || '',
+        date_to: newFilters?.date_to || '',
+    };
+}, { deep: true });
+
+const handleFiltersUpdate = (filters) => {
+    currentFilters.value = filters;
+};
 
 const deleteSale = (id) => {
     if (confirm('Вы уверены, что хотите удалить эту продажу?')) {
-        router.delete(`/sales/${id}`);
+        // Формируем query параметры с фильтрами
+        const queryParams = new URLSearchParams();
+        Object.entries(currentFilters.value).forEach(([key, value]) => {
+            if (value) {
+                queryParams.append(key, value);
+            }
+        });
+        
+        const queryString = queryParams.toString();
+        const url = `/sales/${id}${queryString ? '?' + queryString : ''}`;
+        
+        router.delete(url, {
+            preserveState: true,
+            preserveScroll: true,
+        });
     }
 };
 </script>
@@ -31,6 +69,12 @@ const deleteSale = (id) => {
         </div>
 
         <div class="font-medium text-gray-600 mb-6">Всего продаж: {{ salesCount }}</div>
+
+        <SaleFilters
+            :branches="branches"
+            :filters="filters"
+            @update:filters="handleFiltersUpdate"
+        />
 
         <div class="relative overflow-x-auto mb-6">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500">
@@ -60,6 +104,7 @@ const deleteSale = (id) => {
                 </tr>
                 </thead>
                 <tbody>
+                <EmptyState v-if="sales.data.length === 0" :colspan="7" />
                 <tr v-for="sale in sales.data" :key="sale.id" class="border-b">
                     <th scope="row"
                         class="px-6 py-4 font-medium whitespace-nowrap">

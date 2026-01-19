@@ -36,7 +36,6 @@ class ProductFactory extends Factory
             'branch_id' => \App\Models\Branch::factory(),
             'name' => $name,
             'price' => fake()->randomFloat(2, 5000, 200000),
-            'purchase_date' => fake()->dateTimeBetween('-2 years', 'now'),
         ];
     }
 }

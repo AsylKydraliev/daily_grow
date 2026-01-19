@@ -6,7 +6,6 @@ use App\Models\Branch;
 use App\Models\Counterparty;
 use App\Models\Product;
 use App\Models\Sale;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class SaleSeeder extends Seeder
@@ -19,9 +18,8 @@ class SaleSeeder extends Seeder
         $branches = Branch::all();
         $products = Product::all();
         $counterparties = \App\Models\Counterparty::all();
-        $users = User::all();
 
-        if ($branches->isEmpty() || $products->isEmpty() || $counterparties->isEmpty() || $users->isEmpty()) {
+        if ($branches->isEmpty() || $products->isEmpty() || $counterparties->isEmpty()) {
             return;
         }
 
@@ -29,7 +27,6 @@ class SaleSeeder extends Seeder
             'branch_id' => fn() => $branches->random()->id,
             'product_id' => fn() => $products->random()->id,
             'counterparty_id' => fn() => $counterparties->random()->id,
-            'user_id' => fn() => $users->random()->id,
         ]);
     }
 }

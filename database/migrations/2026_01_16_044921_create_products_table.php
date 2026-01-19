@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->decimal('price', 10, 2);
-            $table->date('purchase_date');
             $table->timestamps();
         });
     }

@@ -13,14 +13,11 @@ const form = useForm({
     branch_id: null,
     name: null,
     price: null,
-    purchase_date: null,
 })
 
 const handleSubmit = async () => {
     form.post('/products');
 };
-
-/** @todo Убрать дату закупки */
 </script>
 
 <template>
@@ -68,18 +65,6 @@ const handleSubmit = async () => {
                     placeholder="0.00"
                 />
                 <small v-if="form.errors.price" class="text-red-600">{{ form.errors.price }}</small>
-            </div>
-
-            <div class="mb-5">
-                <label for="purchase_date" class="block mb-2 text-sm font-medium text-gray-900">Дата закупки</label>
-                <input
-                    type="date"
-                    id="purchase_date"
-                    v-model="form.purchase_date"
-                    :class="{ 'border-red-500': form.errors.purchase_date }"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                />
-                <small v-if="form.errors.purchase_date" class="text-red-600">{{ form.errors.purchase_date }}</small>
             </div>
 
             <div class="flex gap-2">

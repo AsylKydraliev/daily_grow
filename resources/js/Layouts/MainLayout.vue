@@ -11,6 +11,7 @@ import BranchesIcon from "@/Components/Icons/BranchesIcon.vue";
 import SalesIcon from "@/Components/Icons/SalesIcon.vue";
 import ProductReceiptsIcon from "@/Components/Icons/ProductReceiptsIcon.vue";
 import ProductsIcon from "@/Components/Icons/ProductsIcon.vue";
+import WarehouseIcon from "@/Components/Icons/WarehouseIcon.vue";
 
 const currentUrl = ref(router.page.url);
 </script>
@@ -93,6 +94,16 @@ const currentUrl = ref(router.page.url);
                             >
                                 <SalesIcon />
                                 <span>Продажи</span>
+                            </Link>
+                        </li>
+                        <li class="rounded-sm">
+                            <Link
+                                :href="route('warehouse.index')"
+                                class="flex items-center p-2 space-x-3 rounded-md"
+                                :class="{ 'active': currentUrl.startsWith('/warehouse') }"
+                            >
+                                <WarehouseIcon />
+                                <span>Склад</span>
                             </Link>
                         </li>
                     </ul>

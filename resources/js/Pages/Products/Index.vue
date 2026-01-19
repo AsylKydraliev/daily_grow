@@ -4,6 +4,7 @@ import {Link, router} from "@inertiajs/vue3";
 import Pagination from "@/Components/Pagination.vue";
 import SearchInput from "@/Components/SearchInput.vue";
 import PlusIcon from "@/Components/Icons/PlusIcon.vue";
+import EmptyState from "@/Components/EmptyState.vue";
 
 const props = defineProps({
     products: Object,
@@ -52,25 +53,12 @@ const deleteProduct = (id) => {
                         Цена
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Дата закупки
-                    </th>
-                    <th scope="col" class="px-6 py-3">
                         Действия
                     </th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-if="products.data.length === 0" class="border-b">
-                    <td :colspan="5" class="px-6 py-8 text-center text-gray-500">
-                        <div class="flex flex-col items-center justify-center">
-                            <svg class="w-12 h-12 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <p class="text-lg font-medium">Результаты не найдены</p>
-                            <p class="text-sm mt-1">Попробуйте изменить параметры поиска</p>
-                        </div>
-                    </td>
-                </tr>
+                <EmptyState v-if="products.data.length === 0" :colspan="5" />
                 <tr v-for="product in products.data" :key="product.id" class="border-b">
                     <th scope="row"
                         class="px-6 py-4 font-medium whitespace-nowrap">
@@ -81,9 +69,6 @@ const deleteProduct = (id) => {
                     </td>
                     <td class="px-6 py-4">
                         {{ parseFloat(product.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }) }}
-                    </td>
-                    <td class="px-6 py-4">
-                        {{ new Date(product.purchase_date).toLocaleDateString('ru-RU') }}
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">

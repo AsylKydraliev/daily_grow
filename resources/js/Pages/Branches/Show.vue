@@ -3,6 +3,7 @@ import MainLayout from "@/Layouts/MainLayout.vue";
 import {Link} from "@inertiajs/vue3";
 import PencilIcon from "@/Components/Icons/PencilIcon.vue";
 import ArrowLeftIcon from "@/Components/Icons/ArrowLeftIcon.vue";
+import BranchesIcon from "@/Components/Icons/BranchesIcon.vue";
 
 const props = defineProps({
     branch: Object

@@ -25,7 +25,6 @@ class UpdateSaleRequest extends FormRequest
             'product_id' => 'required|exists:products,id',
             'counterparty_id' => 'required|exists:counterparties,id',
             'branch_id' => 'required|exists:branches,id',
-            'user_id' => 'nullable|exists:users,id',
             'quantity' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'sale_date' => 'required|date',

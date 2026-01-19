@@ -54,10 +54,6 @@ const props = defineProps({
                     <dd class="mt-1 text-sm text-gray-900">{{ new Date(sale.sale_date).toLocaleDateString('ru-RU') }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Пользователь</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ sale.user?.name || 'N/A' }}</dd>
-                </div>
-                <div>
                     <dt class="text-sm font-medium text-gray-500">Дата создания</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ new Date(sale.created_at).toLocaleDateString('ru-RU') }}</dd>
                 </div>

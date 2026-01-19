@@ -4,25 +4,56 @@ import { useForm } from '@inertiajs/vue3';
 import {Link} from "@inertiajs/vue3";
 import CheckIcon from "@/Components/Icons/CheckIcon.vue";
 import XMarkIcon from "@/Components/Icons/XMarkIcon.vue";
+import BranchProductsSaleTable from "@/Components/BranchProductsSaleTable.vue";
+import { ref, watch } from 'vue';
+
+// Получаем сегодняшнюю дату в формате YYYY-MM-DD
+const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+};
 
 const props = defineProps({
     products: Array,
     counterparties: Array,
     branches: Array,
-    users: Array,
 });
 
 const form = useForm({
-    product_id: null,
-    counterparty_id: null,
     branch_id: null,
-    user_id: null,
-    quantity: null,
-    price: null,
-    sale_date: null,
-})
+    counterparty_id: null,
+    sale_date: getTodayDate(),
+    sales: [],
+});
+
+const productSales = ref({});
+
+/** Сбрасываем продажи при смене филиала */
+watch(() => form.branch_id, () => {
+    productSales.value = {};
+});
 
 const handleSubmit = async () => {
+    // Получаем только товары выбранного филиала
+    const branchProducts = props.products.filter(p => p.branch_id === form.branch_id);
+    const branchProductIds = new Set(branchProducts.map(p => p.id));
+
+    // Формируем массив продаж для товаров с количеством > 0
+    const sales = Object.entries(productSales.value)
+        .filter(([productId, saleData]) => {
+            const id = parseInt(productId);
+            return branchProductIds.has(id) && saleData && saleData.quantity > 0;
+        })
+        .map(([productId, saleData]) => ({
+            product_id: parseInt(productId),
+            quantity: saleData.quantity,
+            price: saleData.price || branchProducts.find(p => p.id === parseInt(productId))?.price || 0,
+        }));
+
+    form.sales = sales;
     form.post('/sales');
 };
 </script>
@@ -30,39 +61,7 @@ const handleSubmit = async () => {
 <template>
     <MainLayout>
         <h3 class="text-xl font-bold mb-5">Создать продажу</h3>
-        <form class="sm:max-w-lg" @submit.prevent="handleSubmit">
-            <div class="mb-5">
-                <label for="product_id" class="block mb-2 text-sm font-medium text-gray-900">Товар</label>
-                <select
-                    id="product_id"
-                    v-model="form.product_id"
-                    :class="{ 'border-red-500': form.errors.product_id }"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                >
-                    <option :value="null">Выберите товар</option>
-                    <option v-for="product in products" :key="product.id" :value="product.id">
-                        {{ product.name }}
-                    </option>
-                </select>
-                <small v-if="form.errors.product_id" class="text-red-600">{{ form.errors.product_id }}</small>
-            </div>
-
-            <div class="mb-5">
-                <label for="counterparty_id" class="block mb-2 text-sm font-medium text-gray-900">Контрагент</label>
-                <select
-                    id="counterparty_id"
-                    v-model="form.counterparty_id"
-                    :class="{ 'border-red-500': form.errors.counterparty_id }"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                >
-                    <option :value="null">Выберите контрагента</option>
-                    <option v-for="counterparty in counterparties" :key="counterparty.id" :value="counterparty.id">
-                        {{ counterparty.name }}
-                    </option>
-                </select>
-                <small v-if="form.errors.counterparty_id" class="text-red-600">{{ form.errors.counterparty_id }}</small>
-            </div>
-
+        <form class="max-w-5xl pb-7" @submit.prevent="handleSubmit">
             <div class="mb-5">
                 <label for="branch_id" class="block mb-2 text-sm font-medium text-gray-900">Филиал</label>
                 <select
@@ -70,6 +69,7 @@ const handleSubmit = async () => {
                     v-model="form.branch_id"
                     :class="{ 'border-red-500': form.errors.branch_id }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                    required
                 >
                     <option :value="null">Выберите филиал</option>
                     <option v-for="branch in branches" :key="branch.id" :value="branch.id">
@@ -79,33 +79,27 @@ const handleSubmit = async () => {
                 <small v-if="form.errors.branch_id" class="text-red-600">{{ form.errors.branch_id }}</small>
             </div>
 
-            <div class="mb-5">
-                <label for="quantity" class="block mb-2 text-sm font-medium text-gray-900">Количество</label>
-                <input
-                    type="number"
-                    id="quantity"
-                    v-model="form.quantity"
-                    :class="{ 'border-red-500': form.errors.quantity }"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="0"
-                    min="1"
-                />
-                <small v-if="form.errors.quantity" class="text-red-600">{{ form.errors.quantity }}</small>
-            </div>
+            <BranchProductsSaleTable
+                :branch-id="form.branch_id"
+                :products="products"
+                @update:sales="productSales = $event"
+            />
 
             <div class="mb-5">
-                <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Цена</label>
-                <input
-                    type="number"
-                    step="0.01"
-                    id="price"
-                    v-model="form.price"
-                    :class="{ 'border-red-500': form.errors.price }"
+                <label for="counterparty_id" class="block mb-2 text-sm font-medium text-gray-900">Контрагент</label>
+                <select
+                    id="counterparty_id"
+                    v-model="form.counterparty_id"
+                    :class="{ 'border-red-500': form.errors.counterparty_id }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="0.00"
-                    min="0"
-                />
-                <small v-if="form.errors.price" class="text-red-600">{{ form.errors.price }}</small>
+                    required
+                >
+                    <option :value="null">Выберите контрагента</option>
+                    <option v-for="counterparty in counterparties" :key="counterparty.id" :value="counterparty.id">
+                        {{ counterparty.name }}
+                    </option>
+                </select>
+                <small v-if="form.errors.counterparty_id" class="text-red-600">{{ form.errors.counterparty_id }}</small>
             </div>
 
             <div class="mb-5">

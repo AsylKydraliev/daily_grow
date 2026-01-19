@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductReceiptController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -29,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('/products', ProductController::class);
     Route::resource('/product-receipts', ProductReceiptController::class);
     Route::resource('/sales', SaleController::class);
+    Route::get('/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');
 });
 
 require __DIR__.'/auth.php';

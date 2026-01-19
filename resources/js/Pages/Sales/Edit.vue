@@ -10,14 +10,12 @@ const props = defineProps({
     products: Array,
     counterparties: Array,
     branches: Array,
-    users: Array,
 });
 
 const form = useForm({
     product_id: props.sale.product_id,
     counterparty_id: props.sale.counterparty_id,
     branch_id: props.sale.branch_id,
-    user_id: props.sale.user_id,
     quantity: props.sale.quantity,
     price: props.sale.price,
     sale_date: props.sale.sale_date,
@@ -78,22 +76,6 @@ const handleSubmit = async () => {
                     </option>
                 </select>
                 <small v-if="form.errors.branch_id" class="text-red-600">{{ form.errors.branch_id }}</small>
-            </div>
-
-            <div class="mb-5">
-                <label for="user_id" class="block mb-2 text-sm font-medium text-gray-900">Пользователь</label>
-                <select
-                    id="user_id"
-                    v-model="form.user_id"
-                    :class="{ 'border-red-500': form.errors.user_id }"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                >
-                    <option value="">Выберите пользователя (необязательно)</option>
-                    <option v-for="user in users" :key="user.id" :value="user.id">
-                        {{ user.name }}
-                    </option>
-                </select>
-                <small v-if="form.errors.user_id" class="text-red-600">{{ form.errors.user_id }}</small>
             </div>
 
             <div class="mb-5">

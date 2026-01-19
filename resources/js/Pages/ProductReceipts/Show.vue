@@ -46,10 +46,6 @@ const props = defineProps({
                     <dd class="mt-1 text-sm text-gray-900">{{ new Date(productReceipt.receipt_date).toLocaleDateString('ru-RU') }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Пользователь</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ productReceipt.user?.name || 'N/A' }}</dd>
-                </div>
-                <div>
                     <dt class="text-sm font-medium text-gray-500">Дата создания</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ new Date(productReceipt.created_at).toLocaleDateString('ru-RU') }}</dd>
                 </div>

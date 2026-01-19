@@ -25,7 +25,6 @@ class StoreProductRequest extends FormRequest
             'branch_id' => 'required|exists:branches,id',
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
-            'purchase_date' => 'required|date',
         ];
     }
 }

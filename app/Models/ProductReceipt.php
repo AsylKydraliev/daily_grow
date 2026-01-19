@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $product_id
  * @property int $branch_id
- * @property int|null $user_id
  * @property int $quantity
  * @property Carbon $receipt_date
  * @property Carbon $created_at
@@ -27,7 +26,6 @@ class ProductReceipt extends Model
     protected $fillable = [
         'product_id',
         'branch_id',
-        'user_id',
         'quantity',
         'receipt_date',
     ];
@@ -53,10 +51,20 @@ class ProductReceipt extends Model
     }
 
     /**
-     * Получить пользователя
+     * Фильтрация записей
      */
-    public function user(): BelongsTo
+    public function scopeFilter(Builder $query, array $data = []): void
     {
-        return $this->belongsTo(User::class);
+        if (isset($data['branch_id'])) {
+            $query->where('branch_id', $data['branch_id']);
+        }
+
+        if (isset($data['date_from'])) {
+            $query->where('receipt_date', '>=', $data['date_from']);
+        }
+
+        if (isset($data['date_to'])) {
+            $query->where('receipt_date', '<=', $data['date_to']);
+        }
     }
 }

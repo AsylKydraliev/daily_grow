@@ -34,12 +34,12 @@ const props = defineProps({
                     <dd class="mt-1 text-sm text-gray-900">{{ product.name }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Цена</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ parseFloat(product.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }) }}</dd>
+                    <dt class="text-sm font-medium text-gray-500">Филиал</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ product.branch?.name || 'N/A' }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Дата закупки</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ new Date(product.purchase_date).toLocaleDateString('ru-RU') }}</dd>
+                    <dt class="text-sm font-medium text-gray-500">Цена</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ parseFloat(product.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }) }}</dd>
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-gray-500">Дата создания</dt>
@@ -48,10 +48,6 @@ const props = defineProps({
                 <div>
                     <dt class="text-sm font-medium text-gray-500">Дата обновления</dt>
                     <dd class="mt-1 text-sm text-gray-900">{{ new Date(product.updated_at).toLocaleDateString('ru-RU') }}</dd>
-                </div>
-                <div>
-                    <dt class="text-sm font-medium text-gray-500">Филиал</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ product.branch?.name || 'N/A' }}</dd>
                 </div>
             </dl>
         </div>
