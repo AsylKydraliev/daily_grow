@@ -1,6 +1,5 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     branchId: {
@@ -13,9 +12,10 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['update:quantities']);
+const emit = defineEmits(['update:receiptQuantities', 'update:wholesalePrices']);
 
-const quantities = ref({});
+const receiptQuantities = ref({});
+const wholesalePrices = ref({});
 
 /** Фильтруем товары по выбранному филиалу */
 const branchProducts = computed(() => {
@@ -25,17 +25,25 @@ const branchProducts = computed(() => {
     return props.products.filter(product => product.branch_id === props.branchId);
 });
 
-
-/** Обновляем количества при изменении */
-watch(quantities, (newQuantities) => {
-    emit('update:quantities', newQuantities);
+/** Обновляем количества прихода при изменении */
+watch(receiptQuantities, (newQuantities) => {
+    emit('update:receiptQuantities', newQuantities);
 }, { deep: true });
 
-/** Инициализируем количества для всех товаров текущим количеством */
+/** Обновляем оптовые цены при изменении */
+watch(wholesalePrices, (newPrices) => {
+    emit('update:wholesalePrices', newPrices);
+}, { deep: true });
+
+/** Инициализируем количества прихода и оптовые цены для всех товаров */
 watch(() => props.branchId, () => {
-    quantities.value = {};
+    receiptQuantities.value = {};
+    wholesalePrices.value = {};
     branchProducts.value.forEach(product => {
-        quantities.value[product.id] = product.current_quantity || 0;
+        // Количество прихода инициализируем пустым (пользователь вводит)
+        receiptQuantities.value[product.id] = '';
+        // Подтягиваем оптовую цену из продукта
+        wholesalePrices.value[product.id] = product.wholesale_price_usd ? parseFloat(product.wholesale_price_usd).toFixed(2) : '';
     });
 }, { immediate: true });
 </script>
@@ -51,10 +59,19 @@ watch(() => props.branchId, () => {
                             Название товара
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Цена
+                            Цена закупочная (USD)
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Количество
+                            Цена оптовая (USD)
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Текущее количество
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Количество прихода
+                        </th>
+                        <th scope="col" class="px-6 py-3">
+                            Итого количества
                         </th>
                     </tr>
                 </thead>
@@ -67,18 +84,43 @@ watch(() => props.branchId, () => {
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                             {{ product.name }}
                         </th>
-                        <td class="px-6 py-4">
-                            {{ parseFloat(product.price).toFixed(2) }} ₽
+                        <td class="px-6 py-4 text-center">
+                            <span v-if="product.purchase_price_usd">
+                                {{ parseFloat(product.purchase_price_usd).toFixed(2) }} $
+                            </span>
+                            <span v-else class="text-gray-400">—</span>
                         </td>
                         <td class="px-6 py-4">
                             <input
                                 type="number"
-                                :id="`quantity-${product.id}`"
-                                v-model="quantities[product.id]"
+                                step="0.01"
+                                :id="`wholesale-price-${product.id}`"
+                                v-model="wholesalePrices[product.id]"
+                                min="0"
+                                class="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2"
+                                placeholder="0.00"
+                            />
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="font-semibold text-gray-900">
+                                {{ product.current_quantity || 0 }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <input
+                                type="number"
+                                :id="`receipt-quantity-${product.id}`"
+                                v-model="receiptQuantities[product.id]"
                                 min="0"
                                 step="1"
                                 class="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 font-semibold"
+                                placeholder="0"
                             />
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="font-bold text-lg text-blue-600">
+                                {{ (product.current_quantity || 0) + (parseInt(receiptQuantities[product.id]) || 0) }}
+                            </span>
                         </td>
                     </tr>
                 </tbody>

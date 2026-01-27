@@ -25,7 +25,12 @@ class ProductReceiptController extends Controller
             ->filter($request->all())
             ->orderByDesc('created_at')
             ->paginate(10)
-            ->withQueryString();
+            ->withQueryString()
+            ->through(function ($receipt) {
+                // Добавляем current_quantity из продукта
+                $receipt->current_quantity = $receipt->product->current_quantity ?? 0;
+                return $receipt;
+            });
 
         $productReceiptsCount = ProductReceipt::query()
             ->filter($request->all())
@@ -44,20 +49,10 @@ class ProductReceiptController extends Controller
      */
     public function create(): Response
     {
-        // Получаем товары с текущим количеством в каждом филиале
+        // Получаем товары с текущим количеством из базы данных
         $products = Product::query()
             ->with('branch')
-            ->get()
-            ->map(function ($product) {
-                // Считаем текущее количество товара в филиале (сумма всех приходов)
-                $currentQuantity = ProductReceipt::query()
-                    ->where('product_id', $product->id)
-                    ->where('branch_id', $product->branch_id)
-                    ->sum('quantity');
-
-                $product->current_quantity = $currentQuantity ?? 0;
-                return $product;
-            });
+            ->get();
 
         return Inertia::render('ProductReceipts/Create', [
             'products' => $products,
@@ -88,8 +83,12 @@ class ProductReceiptController extends Controller
                     'product_id' => $productData['product_id'],
                     'branch_id' => $branchId,
                     'quantity' => $productData['quantity'],
+                    'wholesale_price_usd' => $productData['wholesale_price_usd'] ?? null,
                     'receipt_date' => $receiptDate,
                 ]);
+
+                // Обновляем текущее количество товара: прибавляем количество прихода
+                $product->increment('current_quantity', $productData['quantity']);
             }
         }
 
@@ -121,27 +120,10 @@ class ProductReceiptController extends Controller
      */
     public function edit(ProductReceipt $productReceipt): Response
     {
-        // Получаем товары с текущим количеством в каждом филиале
+        // Получаем товары с текущим количеством из базы данных
         $products = Product::query()
             ->with('branch')
-            ->get()
-            ->map(function ($product) use ($productReceipt) {
-                // Считаем текущее количество товара в филиале (сумма всех приходов)
-                $currentQuantity = ProductReceipt::query()
-                    ->where('product_id', $product->id)
-                    ->where('branch_id', $product->branch_id)
-                    ->sum('quantity');
-                
-                // Если это товар из редактируемого прихода, вычитаем его количество
-                // чтобы показать количество без этого прихода
-                if ($product->id == $productReceipt->product_id && 
-                    $product->branch_id == $productReceipt->branch_id) {
-                    $currentQuantity -= $productReceipt->quantity;
-                }
-                
-                $product->current_quantity = max(0, $currentQuantity ?? 0);
-                return $product;
-            });
+            ->get();
 
         return Inertia::render('ProductReceipts/Edit', [
             'productReceipt' => $productReceipt,
@@ -161,8 +143,20 @@ class ProductReceiptController extends Controller
         $branchId = $validated['branch_id'];
         $receiptDate = $validated['receipt_date'];
 
+        // Сохраняем старое количество прихода для корректировки current_quantity
+        $oldQuantity = $productReceipt->quantity;
+        $oldProductId = $productReceipt->product_id;
+
         // Удаляем старый приход товара
         $productReceipt->delete();
+
+        // Вычитаем старое количество из current_quantity товара
+        if ($oldProductId) {
+            $oldProduct = Product::find($oldProductId);
+            if ($oldProduct) {
+                $oldProduct->decrement('current_quantity', $oldQuantity);
+            }
+        }
 
         // Создаем новые приходы для каждого товара с количеством > 0
         foreach ($validated['products'] as $productData) {
@@ -177,8 +171,12 @@ class ProductReceiptController extends Controller
                     'product_id' => $productData['product_id'],
                     'branch_id' => $branchId,
                     'quantity' => $productData['quantity'],
+                    'wholesale_price_usd' => $productData['wholesale_price_usd'] ?? null,
                     'receipt_date' => $receiptDate,
                 ]);
+
+                // Обновляем текущее количество товара: прибавляем количество прихода
+                $product->increment('current_quantity', $productData['quantity']);
             }
         }
 
@@ -198,7 +196,20 @@ class ProductReceiptController extends Controller
      */
     public function destroy(Request $request, ProductReceipt $productReceipt): RedirectResponse
     {
+        // Сохраняем данные прихода перед удалением
+        $productId = $productReceipt->product_id;
+        $quantity = $productReceipt->quantity;
+
+        // Удаляем приход
         $productReceipt->delete();
+
+        // Вычитаем количество из current_quantity товара
+        if ($productId) {
+            $product = Product::find($productId);
+            if ($product) {
+                $product->decrement('current_quantity', $quantity);
+            }
+        }
 
         // Сохраняем фильтры при редиректе
         return redirect()->route('product-receipts.index', $request->only(['branch_id', 'date_from', 'date_to']))

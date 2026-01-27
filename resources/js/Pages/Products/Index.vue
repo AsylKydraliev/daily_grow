@@ -50,7 +50,13 @@ const deleteProduct = (id) => {
                         Филиал
                     </th>
                     <th scope="col" class="px-6 py-3">
-                        Цена
+                        Цена закупочная (USD)
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Цена оптовая (USD)
+                    </th>
+                    <th scope="col" class="px-6 py-3">
+                        Количество
                     </th>
                     <th scope="col" class="px-6 py-3">
                         Действия
@@ -58,7 +64,7 @@ const deleteProduct = (id) => {
                 </tr>
                 </thead>
                 <tbody>
-                <EmptyState v-if="products.data.length === 0" :colspan="5" />
+                <EmptyState v-if="products.data.length === 0" :colspan="7" />
                 <tr v-for="product in products.data" :key="product.id" class="border-b">
                     <th scope="row"
                         class="px-6 py-4 font-medium whitespace-nowrap">
@@ -67,8 +73,20 @@ const deleteProduct = (id) => {
                     <td class="px-6 py-4">
                         {{ product.branch?.name || 'N/A' }}
                     </td>
-                    <td class="px-6 py-4">
-                        {{ parseFloat(product.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }) }}
+                    <td class="px-6 py-4 text-center">
+                        <span v-if="product.purchase_price_usd">
+                            {{ parseFloat(product.purchase_price_usd).toLocaleString('ru-RU', { style: 'currency', currency: 'USD' }) }}
+                        </span>
+                        <span v-else class="text-gray-400">—</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span v-if="product.wholesale_price_usd">
+                            {{ parseFloat(product.wholesale_price_usd).toLocaleString('ru-RU', { style: 'currency', currency: 'USD' }) }}
+                        </span>
+                        <span v-else class="text-gray-400">—</span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="font-semibold text-gray-900">{{ product.current_quantity || 0 }}</span>
                     </td>
                     <td class="px-6 py-4">
                         <div class="flex gap-2">

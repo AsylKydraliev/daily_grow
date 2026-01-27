@@ -15,7 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('branch_id')->constrained()->onDelete('cascade');
             $table->string('name');
-            $table->decimal('price', 10, 2);
+            $table->decimal('purchase_price_usd', 10, 2)->nullable();
+            $table->decimal('purchase_price_kzt', 10, 2)->nullable();
+            $table->decimal('wholesale_price_usd', 10, 2)->nullable();
+            $table->decimal('wholesale_price_kzt', 10, 2)->nullable();
+            $table->integer('current_quantity')->default(0);
             $table->timestamps();
         });
     }

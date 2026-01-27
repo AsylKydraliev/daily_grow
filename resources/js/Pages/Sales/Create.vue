@@ -50,7 +50,7 @@ const handleSubmit = async () => {
         .map(([productId, saleData]) => ({
             product_id: parseInt(productId),
             quantity: saleData.quantity,
-            price: saleData.price || branchProducts.find(p => p.id === parseInt(productId))?.price || 0,
+            price: saleData.price || branchProducts.find(p => p.id === parseInt(productId))?.wholesale_price_usd || 0,
         }));
 
     form.sales = sales;

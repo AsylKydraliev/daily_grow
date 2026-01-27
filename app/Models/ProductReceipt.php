@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $product_id
  * @property int $branch_id
  * @property int $quantity
+ * @property float|null $wholesale_price_usd
  * @property Carbon $receipt_date
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -27,10 +28,12 @@ class ProductReceipt extends Model
         'product_id',
         'branch_id',
         'quantity',
+        'wholesale_price_usd',
         'receipt_date',
     ];
 
     protected $casts = [
+        'wholesale_price_usd' => 'decimal:2',
         'receipt_date' => 'date',
     ];
 

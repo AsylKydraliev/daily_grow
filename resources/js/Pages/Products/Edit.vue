@@ -13,7 +13,11 @@ const props = defineProps({
 const form = useForm({
     branch_id: props.product.branch_id,
     name: props.product.name,
-    price: props.product.price,
+    purchase_price_usd: props.product.purchase_price_usd,
+    purchase_price_kzt: props.product.purchase_price_kzt,
+    wholesale_price_usd: props.product.wholesale_price_usd,
+    wholesale_price_kzt: props.product.wholesale_price_kzt,
+    current_quantity: props.product.current_quantity || 0,
 })
 
 const handleSubmit = async () => {
@@ -57,17 +61,82 @@ const handleSubmit = async () => {
             </div>
 
             <div class="mb-5">
-                <label for="price" class="block mb-2 text-sm font-medium text-gray-900">Цена</label>
+                <label class="block mb-2 text-sm font-medium text-gray-900">Цена закупочная</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="purchase_price_usd" class="block mb-1 text-xs text-gray-600">USD</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            id="purchase_price_usd"
+                            v-model="form.purchase_price_usd"
+                            :class="{ 'border-red-500': form.errors.purchase_price_usd }"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="0.00"
+                        />
+                        <small v-if="form.errors.purchase_price_usd" class="text-red-600">{{ form.errors.purchase_price_usd }}</small>
+                    </div>
+                    <div>
+                        <label for="purchase_price_kzt" class="block mb-1 text-xs text-gray-600">KZT</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            id="purchase_price_kzt"
+                            v-model="form.purchase_price_kzt"
+                            :class="{ 'border-red-500': form.errors.purchase_price_kzt }"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="0.00"
+                        />
+                        <small v-if="form.errors.purchase_price_kzt" class="text-red-600">{{ form.errors.purchase_price_kzt }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="block mb-2 text-sm font-medium text-gray-900">Цена оптовая</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="wholesale_price_usd" class="block mb-1 text-xs text-gray-600">USD</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            id="wholesale_price_usd"
+                            v-model="form.wholesale_price_usd"
+                            :class="{ 'border-red-500': form.errors.wholesale_price_usd }"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="0.00"
+                        />
+                        <small v-if="form.errors.wholesale_price_usd" class="text-red-600">{{ form.errors.wholesale_price_usd }}</small>
+                    </div>
+                    <div>
+                        <label for="wholesale_price_kzt" class="block mb-1 text-xs text-gray-600">KZT</label>
+                        <input
+                            type="number"
+                            step="0.01"
+                            id="wholesale_price_kzt"
+                            v-model="form.wholesale_price_kzt"
+                            :class="{ 'border-red-500': form.errors.wholesale_price_kzt }"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            placeholder="0.00"
+                        />
+                        <small v-if="form.errors.wholesale_price_kzt" class="text-red-600">{{ form.errors.wholesale_price_kzt }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label for="current_quantity" class="block mb-2 text-sm font-medium text-gray-900">Текущее количество</label>
                 <input
                     type="number"
-                    step="0.01"
-                    id="price"
-                    v-model="form.price"
-                    :class="{ 'border-red-500': form.errors.price }"
+                    id="current_quantity"
+                    v-model="form.current_quantity"
+                    :class="{ 'border-red-500': form.errors.current_quantity }"
                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    placeholder="0.00"
+                    placeholder="0"
+                    min="0"
+                    step="1"
                 />
-                <small v-if="form.errors.price" class="text-red-600">{{ form.errors.price }}</small>
+                <small v-if="form.errors.current_quantity" class="text-red-600">{{ form.errors.current_quantity }}</small>
             </div>
 
             <div class="flex gap-2">

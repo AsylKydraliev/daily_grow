@@ -27,6 +27,7 @@ class UpdateProductReceiptRequest extends FormRequest
             'products' => 'required|array|min:1',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.quantity' => 'required|integer|min:1',
+            'products.*.wholesale_price_usd' => 'nullable|numeric|min:0',
         ];
     }
 

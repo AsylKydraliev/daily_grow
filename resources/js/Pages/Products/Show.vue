@@ -38,8 +38,36 @@ const props = defineProps({
                     <dd class="mt-1 text-sm text-gray-900">{{ product.branch?.name || 'N/A' }}</dd>
                 </div>
                 <div>
-                    <dt class="text-sm font-medium text-gray-500">Цена</dt>
-                    <dd class="mt-1 text-sm text-gray-900">{{ parseFloat(product.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }) }}</dd>
+                    <dt class="text-sm font-medium text-gray-500">Цена закупочная</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        <div v-if="product.purchase_price_usd || product.purchase_price_kzt" class="space-y-1">
+                            <div v-if="product.purchase_price_usd">
+                                USD: {{ parseFloat(product.purchase_price_usd).toLocaleString('ru-RU', { style: 'currency', currency: 'USD' }) }}
+                            </div>
+                            <div v-if="product.purchase_price_kzt">
+                                KZT: {{ parseFloat(product.purchase_price_kzt).toLocaleString('ru-RU', { style: 'currency', currency: 'KZT' }) }}
+                            </div>
+                        </div>
+                        <span v-else class="text-gray-400">—</span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Цена оптовая</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        <div v-if="product.wholesale_price_usd || product.wholesale_price_kzt" class="space-y-1">
+                            <div v-if="product.wholesale_price_usd">
+                                USD: {{ parseFloat(product.wholesale_price_usd).toLocaleString('ru-RU', { style: 'currency', currency: 'USD' }) }}
+                            </div>
+                            <div v-if="product.wholesale_price_kzt">
+                                KZT: {{ parseFloat(product.wholesale_price_kzt).toLocaleString('ru-RU', { style: 'currency', currency: 'KZT' }) }}
+                            </div>
+                        </div>
+                        <span v-else class="text-gray-400">—</span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Текущее количество</dt>
+                    <dd class="mt-1 text-sm text-gray-900 font-semibold">{{ product.current_quantity || 0 }}</dd>
                 </div>
                 <div>
                     <dt class="text-sm font-medium text-gray-500">Дата создания</dt>

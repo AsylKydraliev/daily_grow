@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\BalanceController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CounterpartyController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DebtController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProductReceiptController;
 use App\Http\Controllers\SaleController;
@@ -31,6 +33,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('/product-receipts', ProductReceiptController::class);
     Route::resource('/sales', SaleController::class);
     Route::get('/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');
+    Route::get('/balance', [BalanceController::class, 'index'])->name('balance.index');
+    Route::resource('/debts', DebtController::class);
 });
 
 require __DIR__.'/auth.php';

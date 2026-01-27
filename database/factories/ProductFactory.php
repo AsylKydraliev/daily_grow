@@ -35,7 +35,11 @@ class ProductFactory extends Factory
         return [
             'branch_id' => \App\Models\Branch::factory(),
             'name' => $name,
-            'price' => fake()->randomFloat(2, 5000, 200000),
+            'purchase_price_usd' => fake()->randomFloat(2, 50, 2000),
+            'purchase_price_kzt' => fake()->randomFloat(2, 20000, 800000),
+            'wholesale_price_usd' => fake()->randomFloat(2, 60, 2500),
+            'wholesale_price_kzt' => fake()->randomFloat(2, 25000, 1000000),
+            'current_quantity' => fake()->numberBetween(0, 100),
         ];
     }
 }

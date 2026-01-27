@@ -53,7 +53,7 @@ const handleFiltersUpdate = (filters) => {
                             Филиал
                         </th>
                         <th scope="col" class="px-6 py-3 text-center">
-                            Количество прихода
+                            Текущее количество
                         </th>
                         <th scope="col" class="px-6 py-3 text-center">
                             Количество продажи
@@ -86,7 +86,9 @@ const handleFiltersUpdate = (filters) => {
                             {{ product.branch_name }}
                         </td>
                         <td class="px-6 py-4 text-center">
-                            {{ product.receipt_quantity }}
+                            <span class="font-semibold text-gray-900">
+                                {{ product.current_quantity || 0 }}
+                            </span>
                         </td>
                         <td class="px-6 py-4 text-center">
                             {{ product.sale_quantity }}

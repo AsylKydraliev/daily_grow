@@ -27,11 +27,13 @@ const form = useForm({
     products: [],
 });
 
-const productQuantities = ref({});
+const productReceiptQuantities = ref({});
+const productWholesalePrices = ref({});
 
-/** Сбрасываем количества при смене филиала */
+/** Сбрасываем количества прихода и цены при смене филиала */
 watch(() => form.branch_id, () => {
-    productQuantities.value = {};
+    productReceiptQuantities.value = {};
+    productWholesalePrices.value = {};
 });
 
 const handleSubmit = async () => {
@@ -42,25 +44,23 @@ const handleSubmit = async () => {
     // Создаем маппинг товаров для быстрого доступа
     const productsMap = new Map(branchProducts.map(p => [p.id, p]));
 
-    // Формируем массив товаров с разницей между новым и старым количеством
-    const products = Object.entries(productQuantities.value)
+    // Формируем массив товаров с количеством прихода
+    const products = Object.entries(productReceiptQuantities.value)
         .filter(([productId]) => {
             const id = parseInt(productId);
             return branchProductIds.has(id);
         })
-        .map(([productId, newQuantity]) => {
+        .map(([productId, receiptQuantity]) => {
             const id = parseInt(productId);
-            const product = productsMap.get(id);
-            const oldQuantity = product?.current_quantity || 0;
-            const newQty = parseInt(newQuantity) || 0;
-            const difference = newQty - oldQuantity;
+            const qty = parseInt(receiptQuantity) || 0;
 
             return {
                 product_id: id,
-                quantity: difference, // Разница между новым и старым количеством
+                quantity: qty, // Количество прихода (прибавляется к текущему)
+                wholesale_price_usd: productWholesalePrices.value[id] ? parseFloat(productWholesalePrices.value[id]) : null,
             };
         })
-        .filter(p => p.quantity > 0); // Только товары с положительной разницей (приход)
+        .filter(p => p.quantity > 0); // Только товары с количеством прихода > 0
 
     form.products = products;
     form.post('/product-receipts');
@@ -70,7 +70,7 @@ const handleSubmit = async () => {
 <template>
     <MainLayout>
         <h3 class="text-xl font-bold mb-5">Создать приход товара</h3>
-        <form class="max-w-5xl pb-7" @submit.prevent="handleSubmit">
+        <form class="max-w-6xl pb-7" @submit.prevent="handleSubmit">
             <div class="mb-5">
                 <label for="branch_id" class="block mb-2 text-sm font-medium text-gray-900">Филиал</label>
                 <select
@@ -91,7 +91,8 @@ const handleSubmit = async () => {
             <BranchProductsTable
                 :branch-id="form.branch_id"
                 :products="products"
-                @update:quantities="productQuantities = $event"
+                @update:receiptQuantities="productReceiptQuantities = $event"
+                @update:wholesalePrices="productWholesalePrices = $event"
             />
 
             <div class="mb-5">

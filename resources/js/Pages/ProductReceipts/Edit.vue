@@ -28,25 +28,33 @@ const form = useForm({
     products: [],
 });
 
-const productQuantities = ref({});
+const productReceiptQuantities = ref({});
+const productWholesalePrices = ref({});
 
-// Инициализируем количества товаров текущими значениями при загрузке
+// Инициализируем количества прихода и цены при загрузке
 watch(() => props.products, (products) => {
     if (products && props.productReceipt.branch_id) {
         const branchProducts = products.filter(p => p.branch_id === props.productReceipt.branch_id);
         branchProducts.forEach(product => {
-            productQuantities.value[product.id] = product.current_quantity || 0;
+            // Количество прихода инициализируем пустым (пользователь вводит)
+            productReceiptQuantities.value[product.id] = '';
+            // Подтягиваем оптовую цену из продукта
+            productWholesalePrices.value[product.id] = product.wholesale_price_usd ? parseFloat(product.wholesale_price_usd).toFixed(2) : '';
         });
     }
 }, { immediate: true });
 
-/** Сбрасываем количества при смене филиала */
+/** Сбрасываем количества прихода и цены при смене филиала */
 watch(() => form.branch_id, () => {
-    productQuantities.value = {};
+    productReceiptQuantities.value = {};
+    productWholesalePrices.value = {};
     if (form.branch_id) {
         const branchProducts = props.products.filter(p => p.branch_id === form.branch_id);
         branchProducts.forEach(product => {
-            productQuantities.value[product.id] = product.current_quantity || 0;
+            // Количество прихода инициализируем пустым (пользователь вводит)
+            productReceiptQuantities.value[product.id] = '';
+            // Подтягиваем оптовую цену из продукта
+            productWholesalePrices.value[product.id] = product.wholesale_price_usd ? parseFloat(product.wholesale_price_usd).toFixed(2) : '';
         });
     }
 });
@@ -59,25 +67,23 @@ const handleSubmit = async () => {
     // Создаем маппинг товаров для быстрого доступа
     const productsMap = new Map(branchProducts.map(p => [p.id, p]));
 
-    // Формируем массив товаров с разницей между новым и старым количеством
-    const products = Object.entries(productQuantities.value)
+    // Формируем массив товаров с количеством прихода
+    const products = Object.entries(productReceiptQuantities.value)
         .filter(([productId]) => {
             const id = parseInt(productId);
             return branchProductIds.has(id);
         })
-        .map(([productId, newQuantity]) => {
+        .map(([productId, receiptQuantity]) => {
             const id = parseInt(productId);
-            const product = productsMap.get(id);
-            const oldQuantity = product?.current_quantity || 0;
-            const newQty = parseInt(newQuantity) || 0;
-            const difference = newQty - oldQuantity;
-            
+            const qty = parseInt(receiptQuantity) || 0;
+
             return {
                 product_id: id,
-                quantity: difference, // Разница между новым и старым количеством
+                quantity: qty, // Количество прихода (прибавляется к текущему)
+                wholesale_price_usd: productWholesalePrices.value[id] ? parseFloat(productWholesalePrices.value[id]) : null,
             };
         })
-        .filter(p => p.quantity > 0); // Только товары с положительной разницей (приход)
+        .filter(p => p.quantity > 0); // Только товары с количеством прихода > 0
 
     form.products = products;
     form.put(`/product-receipts/${props.productReceipt.id}`);
@@ -108,7 +114,8 @@ const handleSubmit = async () => {
             <BranchProductsTable
                 :branch-id="form.branch_id"
                 :products="products"
-                @update:quantities="productQuantities = $event"
+                @update:receiptQuantities="productReceiptQuantities = $event"
+                @update:wholesalePrices="productWholesalePrices = $event"
             />
 
             <div class="mb-5">

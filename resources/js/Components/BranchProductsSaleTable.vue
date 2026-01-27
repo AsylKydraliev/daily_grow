@@ -25,19 +25,19 @@ const branchProducts = computed(() => {
     return props.products.filter(product => product.branch_id === props.branchId);
 });
 
-/** Вычисляем остаток для конкретного товара (приход - продажи) */
+/** Вычисляем остаток для конкретного товара (текущее количество - продажи) */
 const getRemainingQuantity = (product) => {
-    const receiptQty = product.receipt_quantity || 0;
+    const currentQty = product.current_quantity || 0;
     const saleQty = product.sale_quantity || 0;
-    return Math.max(0, receiptQty - saleQty);
+    return Math.max(0, currentQty - saleQty);
 };
 
-/** Вычисляем остаток после продажи (приход - продажи - текущая продажа) */
+/** Вычисляем остаток после продажи (текущее количество - продажи - текущая продажа) */
 const getRemainingAfterSale = (product) => {
-    const receiptQty = product.receipt_quantity || 0;
+    const currentQty = product.current_quantity || 0;
     const saleQty = product.sale_quantity || 0;
     const currentSaleQty = saleQuantities.value[product.id] ? parseInt(saleQuantities.value[product.id]) : 0;
-    return Math.max(0, receiptQty - saleQty - currentSaleQty);
+    return Math.max(0, currentQty - saleQty - currentSaleQty);
 };
 
 /** Обновляем продажи при изменении */
@@ -49,7 +49,7 @@ watch([saleQuantities, salePrices], () => {
         if (qty && parseInt(qty) > 0) {
             // Если цена не указана, используем цену товара
             const product = branchProducts.value.find(p => p.id === parseInt(productId));
-            const finalPrice = price ? parseFloat(price) : (product?.price ? parseFloat(product.price) : 0);
+            const finalPrice = price ? parseFloat(price) : (product?.wholesale_price_usd ? parseFloat(product.wholesale_price_usd) : 0);
             
             sales[productId] = {
                 quantity: parseInt(qty),
@@ -70,8 +70,8 @@ watch(() => props.branchId, () => {
 watch(() => branchProducts.value, (products) => {
     if (products && products.length > 0) {
         products.forEach(product => {
-            if (product.price && !salePrices.value[product.id]) {
-                salePrices.value[product.id] = parseFloat(product.price).toFixed(2);
+            if (product.wholesale_price_usd && !salePrices.value[product.id]) {
+                salePrices.value[product.id] = parseFloat(product.wholesale_price_usd).toFixed(2);
             }
         });
     }
@@ -89,10 +89,10 @@ watch(() => branchProducts.value, (products) => {
                             Название товара
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Цена
+                            Цена закупочная (USD)
                         </th>
                         <th scope="col" class="px-6 py-3">
-                            Количество прихода
+                            Текущее количество
                         </th>
                         <th scope="col" class="px-6 py-3">
                             Количество продажи
@@ -114,11 +114,14 @@ watch(() => branchProducts.value, (products) => {
                         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                             {{ product.name }}
                         </th>
-                        <td class="px-6 py-4">
-                            {{ parseFloat(product.price).toFixed(2) }} ₽
+                        <td class="px-6 py-4 text-center">
+                            <span v-if="product.purchase_price_usd">
+                                {{ parseFloat(product.purchase_price_usd).toFixed(2) }} $
+                            </span>
+                            <span v-else class="text-gray-400">—</span>
                         </td>
-                        <td class="px-6 py-4">
-                            <span class="font-semibold text-gray-900">{{ product.receipt_quantity || 0 }}</span>
+                        <td class="px-6 py-4 text-center">
+                            <span class="font-semibold text-gray-900">{{ product.current_quantity || 0 }}</span>
                         </td>
                         <td class="px-6 py-4">
                             <input
@@ -138,7 +141,7 @@ watch(() => branchProducts.value, (products) => {
                                 step="0.01"
                                 :id="`sale-price-${product.id}`"
                                 v-model="salePrices[product.id]"
-                                :placeholder="parseFloat(product.price).toFixed(2)"
+                                :placeholder="product.wholesale_price_usd ? parseFloat(product.wholesale_price_usd).toFixed(2) : '0.00'"
                                 min="0"
                                 class="w-32 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2"
                             />

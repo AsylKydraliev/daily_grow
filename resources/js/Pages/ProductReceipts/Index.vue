@@ -42,10 +42,10 @@ const deleteProductReceipt = (id) => {
                 queryParams.append(key, value);
             }
         });
-        
+
         const queryString = queryParams.toString();
         const url = `/product-receipts/${id}${queryString ? '?' + queryString : ''}`;
-        
+
         router.delete(url, {
             preserveState: true,
             preserveScroll: true,

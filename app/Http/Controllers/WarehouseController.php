@@ -30,20 +30,8 @@ class WarehouseController extends Controller
             })
             ->get()
             ->map(function ($product) use ($dateFrom, $dateTo) {
-                // Общее количество прихода (без фильтров по датам для расчета остатка)
-                $totalReceiptQuantity = ProductReceipt::query()
-                    ->where('product_id', $product->id)
-                    ->where('branch_id', $product->branch_id)
-                    ->sum('quantity') ?? 0;
-
-                // Общее количество продажи (без фильтров по датам для расчета остатка)
-                $totalSaleQuantity = Sale::query()
-                    ->where('product_id', $product->id)
-                    ->where('branch_id', $product->branch_id)
-                    ->sum('quantity') ?? 0;
-
-                // Оставшееся количество (общее, без фильтров по датам)
-                $remainingQuantity = max(0, $totalReceiptQuantity - $totalSaleQuantity);
+                // Оставшееся количество = текущее количество из продукта
+                $remainingQuantity = $product->current_quantity ?? 0;
 
                 // Запрос для приходов в выбранном периоде (для отображения)
                 $receiptsQuery = ProductReceipt::query()
@@ -75,8 +63,8 @@ class WarehouseController extends Controller
                 // Количество продажи в выбранном периоде
                 $saleQuantity = $salesQuery->sum('quantity') ?? 0;
 
-                // Цена прихода (цена товара)
-                $receiptPrice = $product->price ?? 0;
+                // Цена прихода (цена закупочная в USD)
+                $receiptPrice = $product->purchase_price_usd ?? 0;
 
                 // Цена продажи (средняя взвешенная)
                 $salePrice = 0;
@@ -99,7 +87,7 @@ class WarehouseController extends Controller
                     'name' => $product->name,
                     'branch_id' => $product->branch_id,
                     'branch_name' => $product->branch->name ?? 'N/A',
-                    'receipt_quantity' => $receiptQuantity,
+                    'current_quantity' => $product->current_quantity ?? 0,
                     'sale_quantity' => $saleQuantity,
                     'remaining_quantity' => $remainingQuantity,
                     'receipt_price' => round($receiptPrice, 2),
@@ -108,8 +96,8 @@ class WarehouseController extends Controller
                 ];
             })
             ->filter(function ($item) {
-                /** Показываем только товары с фактическим количеством (оставшимся) больше 0 */
-                return $item['remaining_quantity'] > 0;
+                /** Показываем только товары с текущим количеством больше 0 */
+                return $item['current_quantity'] > 0;
             })
             ->values();
 

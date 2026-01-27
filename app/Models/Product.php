@@ -13,7 +13,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property int $branch_id
  * @property string $name
- * @property float $price
+ * @property float|null $purchase_price_usd
+ * @property float|null $purchase_price_kzt
+ * @property float|null $wholesale_price_usd
+ * @property float|null $wholesale_price_kzt
+ * @property int $current_quantity
  * @property Carbon $created_at
  * @property Carbon $updated_at
  *
@@ -26,11 +30,18 @@ class Product extends Model
     protected $fillable = [
         'branch_id',
         'name',
-        'price',
+        'purchase_price_usd',
+        'purchase_price_kzt',
+        'wholesale_price_usd',
+        'wholesale_price_kzt',
+        'current_quantity',
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'purchase_price_usd' => 'decimal:2',
+        'purchase_price_kzt' => 'decimal:2',
+        'wholesale_price_usd' => 'decimal:2',
+        'wholesale_price_kzt' => 'decimal:2',
     ];
 
     /**

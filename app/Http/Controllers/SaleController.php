@@ -45,24 +45,20 @@ class SaleController extends Controller
      */
     public function create(): Response
     {
-        // Получаем товары с количеством прихода и продаж в каждом филиале
+        // Получаем товары с текущим количеством и продажами в каждом филиале
         $products = Product::query()
             ->with('branch')
             ->get()
             ->map(function ($product) {
-                // Считаем количество прихода товара в филиале
-                $receiptQuantity = \App\Models\ProductReceipt::query()
-                    ->where('product_id', $product->id)
-                    ->where('branch_id', $product->branch_id)
-                    ->sum('quantity');
-
+                // Используем current_quantity из продукта
+                $product->current_quantity = $product->current_quantity ?? 0;
+                
                 // Считаем количество продаж товара в филиале
                 $saleQuantity = Sale::query()
                     ->where('product_id', $product->id)
                     ->where('branch_id', $product->branch_id)
                     ->sum('quantity');
 
-                $product->receipt_quantity = $receiptQuantity ?? 0;
                 $product->sale_quantity = $saleQuantity ?? 0;
                 return $product;
             });
@@ -102,6 +98,9 @@ class SaleController extends Controller
                     'price' => $saleData['price'],
                     'sale_date' => $saleDate,
                 ]);
+
+                // Вычитаем количество из current_quantity товара
+                $product->decrement('current_quantity', $saleData['quantity']);
             }
         }
 
@@ -148,7 +147,30 @@ class SaleController extends Controller
      */
     public function update(UpdateSaleRequest $request, Sale $sale): RedirectResponse
     {
+        // Сохраняем старое количество продажи
+        $oldQuantity = $sale->quantity;
+        $productId = $sale->product_id;
+
+        // Обновляем продажу
         $sale->update($request->validated());
+
+        // Получаем новое количество
+        $newQuantity = $sale->quantity;
+
+        // Корректируем current_quantity товара
+        if ($productId) {
+            $product = Product::find($productId);
+            if ($product) {
+                $difference = $newQuantity - $oldQuantity;
+                if ($difference > 0) {
+                    // Увеличилось количество - вычитаем разницу
+                    $product->decrement('current_quantity', $difference);
+                } elseif ($difference < 0) {
+                    // Уменьшилось количество - прибавляем разницу
+                    $product->increment('current_quantity', abs($difference));
+                }
+            }
+        }
 
         return to_route('sales.index')
             ->with('success', 'Продажа успешно обновлена');
@@ -161,7 +183,20 @@ class SaleController extends Controller
      */
     public function destroy(Request $request, Sale $sale): RedirectResponse
     {
+        // Сохраняем данные продажи перед удалением
+        $productId = $sale->product_id;
+        $quantity = $sale->quantity;
+
+        // Удаляем продажу
         $sale->delete();
+
+        // Прибавляем количество обратно к current_quantity товара
+        if ($productId) {
+            $product = Product::find($productId);
+            if ($product) {
+                $product->increment('current_quantity', $quantity);
+            }
+        }
 
         // Сохраняем фильтры при редиректе
         return redirect()->route('sales.index', $request->only(['branch_id', 'date_from', 'date_to']))
