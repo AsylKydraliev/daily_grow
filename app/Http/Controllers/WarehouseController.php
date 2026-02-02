@@ -79,8 +79,9 @@ class WarehouseController extends Controller
                     }
                 }
 
-                // Прибыль (цена продажи - цена прихода)
-                $profit = $salePrice > 0 ? $salePrice - $receiptPrice : 0;
+                // Прибыль за все проданные товары: (цена продажи - цена прихода) * количество продаж
+                $profitPerUnit = $salePrice > 0 ? $salePrice - $receiptPrice : 0;
+                $profit = $profitPerUnit * $saleQuantity;
 
                 return [
                     'id' => $product->id,
@@ -101,8 +102,12 @@ class WarehouseController extends Controller
             })
             ->values();
 
+        // Итоговая прибыль по всем товарам
+        $totalProfit = $products->sum('profit');
+
         return Inertia::render('Warehouse/Index', [
             'products' => $products,
+            'totalProfit' => round($totalProfit, 2),
             'branches' => Branch::all(),
             'filters' => $request->only(['branch_id', 'date_from', 'date_to']),
         ]);

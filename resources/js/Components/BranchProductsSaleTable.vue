@@ -12,6 +12,15 @@ const props = defineProps({
     }
 });
 
+// TODO Вывести количкество прихода в остатках товаров на странице Балансе и внизу итоги
+// TODO Добавить погашение долга и добавить историю долгов
+// TODO Добавить на страницк Скалада количество прихода
+// TODO Добавить остаток кассы, денежных средств, расчестный счет Каспи ТОО
+// TODO Добавить Вывести в ОПиУ сумму всех долгов
+// TODO Добавить Расходы
+// TODO Добавить Активы (Сумма всех - ТМЗ, долги, остаток кассы, денежных средств)
+// TODO Добавить долги партнера (приход товара + сколько вернули долги потсавщику)
+
 const emit = defineEmits(['update:sales']);
 
 const saleQuantities = ref({});
@@ -25,19 +34,16 @@ const branchProducts = computed(() => {
     return props.products.filter(product => product.branch_id === props.branchId);
 });
 
-/** Вычисляем остаток для конкретного товара (текущее количество - продажи) */
+/** Остаток товара (как на складе — текущее количество в БД) */
 const getRemainingQuantity = (product) => {
-    const currentQty = product.current_quantity || 0;
-    const saleQty = product.sale_quantity || 0;
-    return Math.max(0, currentQty - saleQty);
+    return Math.max(0, product.current_quantity || 0);
 };
 
-/** Вычисляем остаток после продажи (текущее количество - продажи - текущая продажа) */
+/** Остаток после введённой продажи (текущее количество − количество в форме) */
 const getRemainingAfterSale = (product) => {
     const currentQty = product.current_quantity || 0;
-    const saleQty = product.sale_quantity || 0;
     const currentSaleQty = saleQuantities.value[product.id] ? parseInt(saleQuantities.value[product.id]) : 0;
-    return Math.max(0, currentQty - saleQty - currentSaleQty);
+    return currentQty - currentSaleQty;
 };
 
 /** Обновляем продажи при изменении */
@@ -50,7 +56,7 @@ watch([saleQuantities, salePrices], () => {
             // Если цена не указана, используем цену товара
             const product = branchProducts.value.find(p => p.id === parseInt(productId));
             const finalPrice = price ? parseFloat(price) : (product?.wholesale_price_usd ? parseFloat(product.wholesale_price_usd) : 0);
-            
+
             sales[productId] = {
                 quantity: parseInt(qty),
                 price: finalPrice,
@@ -147,7 +153,7 @@ watch(() => branchProducts.value, (products) => {
                             />
                         </td>
                         <td class="px-6 py-4">
-                            <span 
+                            <span
                                 class="font-bold text-lg"
                                 :class="{
                                     'text-red-600': getRemainingAfterSale(product) < 0,

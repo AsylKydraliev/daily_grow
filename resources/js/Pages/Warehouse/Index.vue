@@ -6,6 +6,7 @@ import { ref, watch } from 'vue';
 
 const props = defineProps({
     products: Array,
+    totalProfit: Number,
     branches: Array,
     filters: Object,
 });
@@ -130,6 +131,25 @@ const handleFiltersUpdate = (filters) => {
                         </td>
                     </tr>
                 </tbody>
+                <tfoot v-if="products.length > 0">
+                    <tr class="bg-gray-100 border-t-2 border-gray-300 font-bold">
+                        <td colspan="7" class="px-6 py-4 text-xl text-right text-gray-900">
+                            Итоговая прибыль:
+                        </td>
+                        <td class="px-6 py-4 text-center">
+                            <span
+                                class="text-lg"
+                                :class="{
+                                    'text-green-600': totalProfit > 0,
+                                    'text-red-600': totalProfit < 0,
+                                    'text-gray-600': totalProfit === 0
+                                }"
+                            >
+                                {{ (totalProfit ?? 0).toLocaleString('ru-RU', { style: 'currency', currency: 'USD' }) }}
+                            </span>
+                        </td>
+                    </tr>
+                </tfoot>
             </table>
         </div>
     </MainLayout>

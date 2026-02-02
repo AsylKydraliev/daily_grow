@@ -45,23 +45,19 @@ class SaleController extends Controller
      */
     public function create(): Response
     {
-        // Получаем товары с текущим количеством и продажами в каждом филиале
+        // Получаем товары с текущим количеством (остаток — как на складе)
         $products = Product::query()
             ->with('branch')
             ->get()
-            ->map(function ($product) {
-                // Используем current_quantity из продукта
-                $product->current_quantity = $product->current_quantity ?? 0;
-                
-                // Считаем количество продаж товара в филиале
-                $saleQuantity = Sale::query()
-                    ->where('product_id', $product->id)
-                    ->where('branch_id', $product->branch_id)
-                    ->sum('quantity');
-
-                $product->sale_quantity = $saleQuantity ?? 0;
-                return $product;
-            });
+            ->map(function (Product $product) {
+                $currentQuantity = $product->current_quantity ?? 0;
+                return array_merge($product->toArray(), [
+                    'current_quantity' => $currentQuantity,
+                    'remaining_quantity' => $currentQuantity,
+                ]);
+            })
+            ->values()
+            ->all();
 
         return Inertia::render('Sales/Create', [
             'products' => $products,

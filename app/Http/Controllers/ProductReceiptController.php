@@ -49,10 +49,19 @@ class ProductReceiptController extends Controller
      */
     public function create(): Response
     {
-        // Получаем товары с текущим количеством из базы данных
+        // Получаем товары с текущим количеством (оставшееся количество — как на складе)
         $products = Product::query()
             ->with('branch')
-            ->get();
+            ->get()
+            ->map(function (Product $product) {
+                $currentQuantity = $product->current_quantity ?? 0;
+                return array_merge($product->toArray(), [
+                    'current_quantity' => $currentQuantity,
+                    'remaining_quantity' => $currentQuantity,
+                ]);
+            })
+            ->values()
+            ->all();
 
         return Inertia::render('ProductReceipts/Create', [
             'products' => $products,
@@ -120,10 +129,19 @@ class ProductReceiptController extends Controller
      */
     public function edit(ProductReceipt $productReceipt): Response
     {
-        // Получаем товары с текущим количеством из базы данных
+        // Получаем товары с текущим количеством (оставшееся количество — как на складе)
         $products = Product::query()
             ->with('branch')
-            ->get();
+            ->get()
+            ->map(function (Product $product) {
+                $currentQuantity = $product->current_quantity ?? 0;
+                return array_merge($product->toArray(), [
+                    'current_quantity' => $currentQuantity,
+                    'remaining_quantity' => $currentQuantity,
+                ]);
+            })
+            ->values()
+            ->all();
 
         return Inertia::render('ProductReceipts/Edit', [
             'productReceipt' => $productReceipt,

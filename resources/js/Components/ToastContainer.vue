@@ -30,7 +30,7 @@ watch(
 
 <template>
     <div
-        class="fixed top-5 right-5 z-50 flex flex-col items-end space-y-2"
+        class="fixed top-5 right-5 z-50 flex flex-col items-center space-y-2"
         aria-live="polite"
         aria-atomic="true"
     >

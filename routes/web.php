@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('/sales', SaleController::class);
     Route::get('/warehouse', [WarehouseController::class, 'index'])->name('warehouse.index');
     Route::get('/balance', [BalanceController::class, 'index'])->name('balance.index');
+    Route::get('/balance/branches/{branch}/products', [BalanceController::class, 'branchProducts'])->name('balance.branch-products');
     Route::resource('/debts', DebtController::class);
 });
 
